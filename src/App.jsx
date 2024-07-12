@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Chat } from './components/Chat';
 import { Form } from './components/Form';
+import { Register } from './components/Register';
 
 function App() {
   const [messages, setMessages] = useState([
@@ -13,8 +14,9 @@ function App() {
 
   return (
     <>
-      <Form setMessages={setMessages} messages={messages} />
-      <Chat messages={messages} />
+      <Register />
+      {/* <Form setMessages={setMessages} messages={messages} /> */}
+      {/* <Chat messages={messages} /> */}
     </>
   );
 }

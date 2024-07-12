@@ -11,17 +11,3 @@ export const Chat = ({ messages }) => {
     </div>
   );
 };
-
-// import { Message } from './Message';
-
-// export const Chat = ({ messages }) => {
-//   return (
-//     <div>
-//       {messages
-//         ?.filter((message) => message.role !== 'system')
-//         .map((message) => {
-//           return <Message key={message.id} message={message} />;
-//         })}
-//     </div>
-//   );
-// };
