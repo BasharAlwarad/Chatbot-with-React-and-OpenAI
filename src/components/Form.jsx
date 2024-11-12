@@ -32,7 +32,8 @@ export const Form = ({ setMessages, messages }) => {
         method: 'POST',
         headers: {
           provider: 'open-ai',
-          mode: 'development',
+          mode: 'production',
+          // mode: 'development',
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
