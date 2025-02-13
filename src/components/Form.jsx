@@ -41,7 +41,6 @@ export const Form = () => {
       headers: {
         provider: 'open-ai',
         mode: 'production',
-        // mode: 'development',
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -50,21 +49,6 @@ export const Form = () => {
         stream,
       }),
     });
-    // const response = await fetch(`${ORIGIN_URL}/api/v1/chat/completions`, {
-    //   method: 'POST',
-    //   headers: {
-    //     provider: 'open-ai',
-    //     mode: 'production',
-    //     // mode: 'development',
-    //     'Content-Type': 'application/json',
-    //   },
-    //   body: JSON.stringify({
-    //     model: 'gpt-4o',
-    //     messages: [...messages, newMessage],
-    //     stream,
-    //   }),
-    // });
-
     setState({
       stream,
       message: '',

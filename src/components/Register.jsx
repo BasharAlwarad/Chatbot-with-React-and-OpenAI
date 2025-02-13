@@ -25,7 +25,7 @@ export function Register() {
     e.preventDefault();
 
     const description = `
-      Create an image of a person with the following details and make the image in nature of a cartoon character:
+      Create an image of a person with the following details and make the image as realistic as possible:
       Name: ${formData.name},
       Age: ${formData.age},
       Gender: ${formData.gender},
