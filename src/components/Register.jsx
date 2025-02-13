@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ORIGIN_URL } from '../config';
 
-export function Register() {
+const Register = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -184,4 +184,6 @@ export function Register() {
       </div>
     </div>
   );
-}
+};
+
+export default Register;

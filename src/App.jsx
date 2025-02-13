@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { Form } from './components/Form';
-import { Register } from './components/Register';
+import Form from './components/Form';
+import Register from './components/Register';
 import Nav from './components/Nav';
 
 function App() {

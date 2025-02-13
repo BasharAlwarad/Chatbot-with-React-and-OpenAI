@@ -1,6 +1,6 @@
 import { Message } from './Message';
 
-export const Chat = ({ messages }) => {
+const Chat = ({ messages }) => {
   return (
     <div className="flex flex-col space-y-4 p-4 bg-gray-100 rounded-lg shadow-md">
       {messages
@@ -11,3 +11,5 @@ export const Chat = ({ messages }) => {
     </div>
   );
 };
+
+export default Chat;
