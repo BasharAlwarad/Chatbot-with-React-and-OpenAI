@@ -1,23 +1,22 @@
-// import { useState } from 'react';
-// import { Chat } from './components/Chat';
-// import { Form } from './components/Form';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Form } from './components/Form';
 import { Register } from './components/Register';
+import Nav from './components/Nav';
 
 function App() {
-  // const [messages, setMessages] = useState([
-  //   {
-  //     id: crypto.randomUUID(),
-  //     role: 'system',
-  //     content: 'You are a helpful assistant.',
-  //   },
-  // ]);
-
   return (
-    <>
-      <Register />
-      {/* <Form setMessages={setMessages} messages={messages} /> */}
-      {/* <Chat messages={messages} /> */}
-    </>
+    <Router>
+      <div className="min-h-screen bg-gray-100">
+        <Nav />
+
+        <div className="p-4">
+          <Routes>
+            <Route path="/register" element={<Register />} />
+            <Route path="/form" element={<Form />} />
+          </Routes>
+        </div>
+      </div>
+    </Router>
   );
 }
 

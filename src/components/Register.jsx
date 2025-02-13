@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { ORIGIN_URL } from '../config';
 
 export function Register() {
   const [formData, setFormData] = useState({
@@ -24,7 +25,7 @@ export function Register() {
     e.preventDefault();
 
     const description = `
-      Create an image of a person with the following details:
+      Create an image of a person with the following details and make the image in nature of a cartoon character:
       Name: ${formData.name},
       Age: ${formData.age},
       Gender: ${formData.gender},
@@ -42,18 +43,15 @@ export function Register() {
     };
 
     try {
-      const response = await fetch(
-        'http://localhost:5050/api/v1/images/generations',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Provider: 'open-ai',
-            Mode: 'production',
-          },
-          body: JSON.stringify(requestPayload),
-        }
-      );
+      const response = await fetch(`${ORIGIN_URL}/api/v1/images/generations`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Provider: 'open-ai',
+          Mode: 'production',
+        },
+        body: JSON.stringify(requestPayload),
+      });
 
       const data = await response.json();
       const base64Image = data[0].b64_json;

@@ -1,6 +1,16 @@
 import { useState } from 'react';
+import { ORIGIN_URL } from '../config';
+import { Chat } from './Chat';
 
-export const Form = ({ setMessages, messages }) => {
+export const Form = () => {
+  const [messages, setMessages] = useState([
+    {
+      id: crypto.randomUUID(),
+      role: 'system',
+      content: 'You are a helpful assistant.',
+    },
+  ]);
+
   const [{ stream, message }, setState] = useState({
     stream: true,
     message: '',
@@ -26,23 +36,34 @@ export const Form = ({ setMessages, messages }) => {
 
     setMessages((prev) => [...prev, newMessage]);
 
-    const response = await fetch(
-      'http://localhost:5050/api/v1/chat/completions',
-      {
-        method: 'POST',
-        headers: {
-          provider: 'open-ai',
-          mode: 'production',
-          // mode: 'development',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: 'gpt-4o',
-          messages: [...messages, newMessage],
-          stream,
-        }),
-      }
-    );
+    const response = await fetch(`${ORIGIN_URL}/api/v1/chat/completions`, {
+      method: 'POST',
+      headers: {
+        provider: 'open-ai',
+        mode: 'production',
+        // mode: 'development',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o',
+        messages: [...messages, newMessage],
+        stream,
+      }),
+    });
+    // const response = await fetch(`${ORIGIN_URL}/api/v1/chat/completions`, {
+    //   method: 'POST',
+    //   headers: {
+    //     provider: 'open-ai',
+    //     mode: 'production',
+    //     // mode: 'development',
+    //     'Content-Type': 'application/json',
+    //   },
+    //   body: JSON.stringify({
+    //     model: 'gpt-4o',
+    //     messages: [...messages, newMessage],
+    //     stream,
+    //   }),
+    // });
 
     setState({
       stream,
@@ -57,7 +78,7 @@ export const Form = ({ setMessages, messages }) => {
       const messageId = crypto.randomUUID();
       while (!(result = await reader.read()).done) {
         const chunk = decoder.decode(result.value, { stream: true });
-        const lines = chunk.split('\n'); // Fixed the split delimiter to correct newline character
+        const lines = chunk.split('\n');
 
         lines.forEach((line) => {
           if (line.startsWith('data:')) {
@@ -91,7 +112,7 @@ export const Form = ({ setMessages, messages }) => {
       }
     } else {
       // no stream
-      const { message: newMessage } = await response.json(); // Destructured 'message' to 'newMessage'
+      const { message: newMessage } = await response.json();
 
       setMessages((prev) => [
         ...prev,
@@ -101,33 +122,36 @@ export const Form = ({ setMessages, messages }) => {
   };
 
   return (
-    <form
-      className="flex flex-col w-full p-4 bg-red-300 rounded-lg shadow-md"
-      onSubmit={onSubmit}
-    >
-      <label className="block mb-4">
-        <span className="text-red-700">Stream</span>
-        <input
-          type="checkbox"
-          name="stream"
-          onChange={handleChange}
-          checked={stream}
-          className="ml-2"
-        />
-      </label>
-      <textarea
-        name="message"
-        placeholder="Type your message here"
-        onChange={handleChange}
-        value={message}
-        className="block w-full p-2 mb-4 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-      ></textarea>
-      <button
-        type="submit"
-        className="w-full px-4 py-2 bg-blue-600 text-white rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+    <>
+      <form
+        className="flex flex-col w-full p-4 bg-red-300 rounded-lg shadow-md"
+        onSubmit={onSubmit}
       >
-        Send
-      </button>
-    </form>
+        <label className="block mb-4">
+          <span className="text-red-700">Stream</span>
+          <input
+            type="checkbox"
+            name="stream"
+            onChange={handleChange}
+            checked={stream}
+            className="ml-2"
+          />
+        </label>
+        <textarea
+          name="message"
+          placeholder="Type your message here"
+          onChange={handleChange}
+          value={message}
+          className="block w-full p-2 mb-4 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        ></textarea>
+        <button
+          type="submit"
+          className="w-full px-4 py-2 bg-blue-600 text-white rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          Send
+        </button>
+      </form>
+      <Chat messages={messages} />
+    </>
   );
 };
