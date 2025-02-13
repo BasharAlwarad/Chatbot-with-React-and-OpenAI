@@ -1,7 +1,17 @@
 import { useState } from 'react';
+import { ORIGIN_URL } from '../config';
+import Chat from './Chat';
 
-export const Form = ({ setMessages, messages }) => {
-  const [messages, setMessages] = useState(null);
+const Form = () => {
+  const [messages, setMessages] = useState([
+    {
+      id: crypto.randomUUID(),
+      role: 'system',
+      content:
+        'You are a software engineer who gives short answers all the time.',
+    },
+  ]);
+
   const [message, setMessage] = useState('');
 
   const handleChange = (e) => {
@@ -18,180 +28,58 @@ export const Form = ({ setMessages, messages }) => {
     };
 
     setMessages((prev) => [...prev, newMessage]);
+    setMessage('');
 
     try {
-      const response = await fetch(
-        'http://localhost:8080/api/v1/chat/completions',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ messages: [...messages, newMessage] }),
-        }
-      );
+      const response = await fetch(`${ORIGIN_URL}/api/v1/chat/completions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ messages: [...messages, newMessage] }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch response');
+      }
 
       const data = await response.json();
+      const assistantMessage = {
+        id: crypto.randomUUID(),
+        role: 'assistant',
+        content: data.message.content,
+      };
 
-      setMessages((prev) => [...prev, { ...data, id: crypto.randomUUID() }]);
-      setMessage('');
+      setMessages((prev) => [...prev, assistantMessage]);
     } catch (error) {
       console.error('Error sending request:', error);
     }
   };
 
   return (
-    <form
-      className="flex flex-col w-full p-4 bg-red-300 rounded-lg shadow-md"
-      onSubmit={onSubmit}
-    >
-      <textarea
-        name="message"
-        placeholder="Type your message here"
-        onChange={handleChange}
-        value={message}
-        className="block w-full p-2 mb-4 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-      ></textarea>
-      <button
-        type="submit"
-        className="w-full px-4 py-2 bg-blue-600 text-white rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+    <>
+      <form
+        className="flex flex-col w-full p-4 bg-red-300 rounded-lg shadow-md"
+        onSubmit={onSubmit}
       >
-        Send
-      </button>
-    </form>
+        <textarea
+          autoFocus
+          name="message"
+          placeholder="Type your message here"
+          onChange={handleChange}
+          value={message}
+          className="block w-full p-2 mb-4 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        ></textarea>
+        <button
+          type="submit"
+          className="w-full px-4 py-2 bg-blue-600 text-white rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          Send
+        </button>
+      </form>
+      <Chat messages={messages} />
+    </>
   );
 };
 
-// import { useState } from 'react';
-
-// export const Form = ({ setMessages, messages }) => {
-//   const [{ stream, message }, setState] = useState({
-//     stream: true,
-//     message: '',
-//   });
-
-//   const handleChange = (e) => {
-//     const name = e.target.name;
-//     const value =
-//       e.target.type === 'checkbox' ? e.target.checked : e.target.value;
-//     setState((prev) => {
-//       return { ...prev, [name]: value };
-//     });
-//   };
-
-//   const onSubmit = async (e) => {
-//     e.preventDefault();
-
-//     const newMessage = {
-//       id: crypto.randomUUID(),
-//       role: 'user',
-//       content: message,
-//     };
-
-//     setMessages((prev) => [...prev, newMessage]);
-
-//     const response = await fetch(
-//       'http://localhost:8080/api/v1/chat/completions',
-//       {
-//         method: 'POST',
-//         headers: {
-//           provider: 'open-ai',
-//           mode: 'production',
-//           // mode: 'development',
-//           'Content-Type': 'application/json',
-//         },
-//         body: JSON.stringify({
-//           model: 'gpt-4o',
-//           messages: [...messages, newMessage],
-//           stream,
-//         }),
-//       }
-//     );
-
-//     setState({
-//       stream,
-//       message: '',
-//     });
-
-//     if (stream) {
-//       const reader = response.body.getReader();
-//       const decoder = new TextDecoder('utf-8');
-
-//       let result;
-//       const messageId = crypto.randomUUID();
-//       while (!(result = await reader.read()).done) {
-//         const chunk = decoder.decode(result.value, { stream: true });
-//         const lines = chunk.split('\n'); // Fixed the split delimiter to correct newline character
-
-//         lines.forEach((line) => {
-//           if (line.startsWith('data:')) {
-//             const jsonStr = line.replace('data:', '').trim();
-//             try {
-//               const data = JSON.parse(jsonStr);
-//               const content = data.choices[0]?.delta?.content;
-//               if (content) {
-//                 setMessages((prev) => {
-//                   const found = prev.find((m) => m.id === messageId);
-
-//                   if (found) {
-//                     return prev.map((m) =>
-//                       m.id === messageId
-//                         ? { ...m, content: `${m.content}${content}` }
-//                         : m
-//                     );
-//                   }
-
-//                   return [
-//                     ...prev,
-//                     { role: 'assistant', content, id: messageId },
-//                   ];
-//                 });
-//               }
-//             } catch (error) {
-//               console.error('Failed to parse JSON:', error);
-//             }
-//           }
-//         });
-//       }
-//     } else {
-//       // no stream
-//       const { message: newMessage } = await response.json();
-
-//       setMessages((prev) => [
-//         ...prev,
-//         { ...newMessage, id: crypto.randomUUID() },
-//       ]);
-//     }
-//   };
-
-//   return (
-//     <form
-//       className="flex flex-col w-full p-4 bg-red-300 rounded-lg shadow-md"
-//       onSubmit={onSubmit}
-//     >
-//       <label className="block mb-4">
-//         <span className="text-red-700">Stream</span>
-//         <input
-//           type="checkbox"
-//           name="stream"
-//           onChange={handleChange}
-//           checked={stream}
-//           className="ml-2"
-//         />
-//       </label>
-//       <textarea
-//         name="message"
-//         placeholder="Type your message here"
-//         onChange={handleChange}
-//         value={message}
-//         className="block w-full p-2 mb-4 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-//       ></textarea>
-//       <button
-//         type="submit"
-//         className="w-full px-4 py-2 bg-blue-600 text-white rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-//       >
-//         Send
-//       </button>
-//     </form>
-//   );
-// };
+export default Form;
